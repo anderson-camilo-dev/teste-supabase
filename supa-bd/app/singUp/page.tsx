@@ -7,21 +7,22 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [exists, setExists] = useState(false);
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [exists, setExists] = useState(false);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setExists(false);
 
-    // 🔒 Validação obrigatória
-    if (!name || !email || !password) {
+    // 🔒 Todos obrigatórios
+    if (!name || !email || !password || !role) {
       setError("Preencha todos os campos.");
       return;
     }
 
-    // 🔍 Verifica se email já existe
+    // 🔍 Verifica email duplicado
     const { data } = await supabase
       .from("users")
       .select("id")
@@ -38,7 +39,7 @@ export default function SignUpPage() {
       name,
       email,
       password,
-      role: "user",
+      role,
     });
 
     if (insertError) {
@@ -47,12 +48,12 @@ export default function SignUpPage() {
     }
 
     alert("Usuário cadastrado com sucesso");
+
     setName("");
     setEmail("");
     setPassword("");
+    setRole("");
   }
-
-  const isDisabled = !name || !email || !password;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-purple-950 to-purple-900">
@@ -64,6 +65,7 @@ export default function SignUpPage() {
           Criar conta
         </h2>
 
+        {/* Nome */}
         <input
           required
           value={name}
@@ -72,6 +74,7 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
+        {/* Email */}
         <input
           required
           type="email"
@@ -81,6 +84,7 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
+        {/* Senha */}
         <input
           required
           type="password"
@@ -90,29 +94,31 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
-        {error && (
-          <p className="text-red-400 text-sm mb-3">{error}</p>
-        )}
+        {/* Cargo */}
+        <select
+          required
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+        >
+          <option value="">Selecione o cargo</option>
+          <option value="user">Usuário</option>
+          <option value="medico">Médico</option>
+          <option value="secretaria">Secretária</option>
+        </select>
+
+        {error && <p className="text-red-400 mb-3">{error}</p>}
 
         {exists && (
           <p className="text-yellow-400 text-sm mb-3">
-            Email já cadastrado. Vá para a página de
+            Email já cadastrado.
             <Link href="/login" className="text-purple-400 pl-1 hover:underline">
-              login
+              Ir para login
             </Link>
-            .
           </p>
         )}
 
-        <button
-          disabled={isDisabled}
-          className={`w-full py-3 rounded-xl font-semibold transition
-            ${
-              isDisabled
-                ? "bg-purple-900 text-gray-400 cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-700 text-white"
-            }`}
-        >
+        <button className="w-full py-3 bg-purple-600 rounded-xl text-white font-semibold">
           Registrar
         </button>
       </form>
