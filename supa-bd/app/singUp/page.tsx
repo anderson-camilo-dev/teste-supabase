@@ -1,6 +1,7 @@
 "use client";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignUpPage() {
@@ -8,8 +9,10 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [cpf, setCpf] = useState("");
   const [error, setError] = useState("");
   const [exists, setExists] = useState(false);
+  const router = useRouter();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -17,8 +20,15 @@ export default function SignUpPage() {
     setExists(false);
 
     // 🔒 Todos obrigatórios
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password || !role || !cpf) {
       setError("Preencha todos os campos.");
+      return;
+    }
+
+    // Validar CPF (apenas números, tamanho 11)
+    const cpfNumbers = cpf.replace(/\D/g, ""); // remove tudo que não é número
+    if (cpfNumbers.length !== 11) {
+      setError("CPF inválido.");
       return;
     }
 
@@ -40,19 +50,33 @@ export default function SignUpPage() {
       email,
       password,
       role,
+      cpf: cpfNumbers,
     });
 
     if (insertError) {
       setError("Erro ao cadastrar usuário.");
+      console.error(insertError);
       return;
     }
 
-    alert("Usuário cadastrado com sucesso");
+    // Redireciona direto para login
+    router.push("/login");
+  }
 
-    setName("");
-    setEmail("");
-    setPassword("");
-    setRole("");
+  // Função para formatar CPF na tela enquanto digita
+  function formatCpf(value: string) {
+    const numbers = value.replace(/\D/g, "");
+    let formatted = numbers;
+    if (numbers.length > 3 && numbers.length <= 6)
+      formatted = numbers.replace(/(\d{3})(\d+)/, "$1.$2");
+    else if (numbers.length > 6 && numbers.length <= 9)
+      formatted = numbers.replace(/(\d{3})(\d{3})(\d+)/, "$1.$2.$3");
+    else if (numbers.length > 9)
+      formatted = numbers.replace(
+        /(\d{3})(\d{3})(\d{3})(\d+)/,
+        "$1.$2.$3-$4"
+      );
+    return formatted;
   }
 
   return (
@@ -94,6 +118,16 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
+        {/* CPF */}
+        <input
+          required
+          value={cpf}
+          maxLength={14}
+          onChange={(e) => setCpf(formatCpf(e.target.value))}
+          placeholder="CPF"
+          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+        />
+
         {/* Cargo */}
         <select
           required
@@ -112,7 +146,10 @@ export default function SignUpPage() {
         {exists && (
           <p className="text-yellow-400 text-sm mb-3">
             Email já cadastrado.
-            <Link href="/login" className="text-purple-400 pl-1 hover:underline">
+            <Link
+              href="/login"
+              className="text-purple-400 pl-1 hover:underline"
+            >
               Ir para login
             </Link>
           </p>

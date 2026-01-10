@@ -1,7 +1,9 @@
 "use client";
+
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,10 +27,11 @@ export default function LoginPage() {
       return;
     }
 
+    // Redireciona dependendo do papel
     if (data.role === "admin") {
       router.push("/users");
     } else {
-      alert("Login realizado");
+      router.push("/client/home"); // Usuário comum vai direto para a home
     }
   }
 
@@ -60,6 +63,14 @@ export default function LoginPage() {
         />
 
         {error && <p className="text-red-400 mb-3">{error}</p>}
+
+        <p className="mb-4">
+          Não tem uma conta?{" "}
+          <Link className="text-purple-400 hover:text-purple-300" href="/singUp">
+            Cadastre-se
+          </Link>{" "}
+          agora!
+        </p>
 
         <button className="w-full py-3 bg-purple-600 rounded-xl text-white">
           Entrar
