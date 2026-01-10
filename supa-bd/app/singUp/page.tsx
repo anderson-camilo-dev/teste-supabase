@@ -10,6 +10,13 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [cpf, setCpf] = useState("");
+
+  // 🔹 ENDEREÇO
+  const [rua, setRua] = useState("");
+  const [numeroCasa, setNumeroCasa] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
+
   const [error, setError] = useState("");
   const [exists, setExists] = useState(false);
   const router = useRouter();
@@ -19,20 +26,24 @@ export default function SignUpPage() {
     setError("");
     setExists(false);
 
-    // 🔒 Todos obrigatórios
-    if (!name || !email || !password || !role || !cpf) {
+    if (!name || !email || !password || !role) {
       setError("Preencha todos os campos.");
       return;
     }
 
-    // Validar CPF (apenas números, tamanho 11)
-    const cpfNumbers = cpf.replace(/\D/g, ""); // remove tudo que não é número
-    if (cpfNumbers.length !== 11) {
-      setError("CPF inválido.");
-      return;
+    if (role === "medico") {
+      if (!cpf || !rua || !numeroCasa || !bairro || !cidade) {
+        setError("Preencha todos os dados do médico.");
+        return;
+      }
+
+      const cpfNumbers = cpf.replace(/\D/g, "");
+      if (cpfNumbers.length !== 11) {
+        setError("CPF inválido.");
+        return;
+      }
     }
 
-    // 🔍 Verifica email duplicado
     const { data } = await supabase
       .from("users")
       .select("id")
@@ -44,13 +55,16 @@ export default function SignUpPage() {
       return;
     }
 
-    // ✅ Cadastro
     const { error: insertError } = await supabase.from("users").insert({
       name,
       email,
       password,
       role,
-      cpf: cpfNumbers,
+      cpf: role === "medico" ? cpf.replace(/\D/g, "") : null,
+      rua: role === "medico" ? rua : null,
+      numero_casa: role === "medico" ? numeroCasa : null,
+      bairro: role === "medico" ? bairro : null,
+      cidade: role === "medico" ? cidade : null,
     });
 
     if (insertError) {
@@ -59,11 +73,9 @@ export default function SignUpPage() {
       return;
     }
 
-    // Redireciona direto para login
     router.push("/login");
   }
 
-  // Função para formatar CPF na tela enquanto digita
   function formatCpf(value: string) {
     const numbers = value.replace(/\D/g, "");
     let formatted = numbers;
@@ -89,7 +101,6 @@ export default function SignUpPage() {
           Criar conta
         </h2>
 
-        {/* Nome */}
         <input
           required
           value={name}
@@ -98,7 +109,6 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
-        {/* Email */}
         <input
           required
           type="email"
@@ -108,7 +118,6 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
-        {/* Senha */}
         <input
           required
           type="password"
@@ -118,17 +127,6 @@ export default function SignUpPage() {
           className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
         />
 
-        {/* CPF */}
-        <input
-          required
-          value={cpf}
-          maxLength={14}
-          onChange={(e) => setCpf(formatCpf(e.target.value))}
-          placeholder="CPF"
-          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-        />
-
-        {/* Cargo */}
         <select
           required
           value={role}
@@ -140,6 +138,46 @@ export default function SignUpPage() {
           <option value="medico">Médico</option>
           <option value="secretaria">Secretária</option>
         </select>
+
+        {role === "medico" && (
+          <>
+            <input
+              value={cpf}
+              maxLength={14}
+              onChange={(e) => setCpf(formatCpf(e.target.value))}
+              placeholder="CPF"
+              className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+            />
+
+            <input
+              value={rua}
+              onChange={(e) => setRua(e.target.value)}
+              placeholder="Rua"
+              className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+            />
+
+            <input
+              value={numeroCasa}
+              onChange={(e) => setNumeroCasa(e.target.value)}
+              placeholder="Número da casa"
+              className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+            />
+
+            <input
+              value={bairro}
+              onChange={(e) => setBairro(e.target.value)}
+              placeholder="Bairro"
+              className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+            />
+
+            <input
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              placeholder="Cidade"
+              className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+            />
+          </>
+        )}
 
         {error && <p className="text-red-400 mb-3">{error}</p>}
 

@@ -7,7 +7,7 @@ import { Modal } from "@/app/components/Modal";
 import Link from "next/link";
 
 /* =====================
-   Tipagens
+   TIPAGENS
 ===================== */
 interface Doctor {
   id: string;
@@ -17,25 +17,30 @@ interface Doctor {
 interface Appointment {
   id: string;
   title: string;
-  client: string;
-  doctorId: string;
-  doctorName: string;
+  patient_name: string;
+  cpf: string;
+  phone: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  house_number: string;
+  doctor_id: string;
+  doctor_name: string;
   hour: string;
   date: string;
 }
 
 /* =====================
-   Utilidades
+   UTILIDADES
 ===================== */
-const hours = Array.from(
-  { length: 24 },
-  (_, i) => `${String(i).padStart(2, "0")}:00`
+const hours = Array.from({ length: 24 }, (_, i) =>
+  `${String(i).padStart(2, "0")}:00`
 );
 
 function getWeek(dateStr: string) {
   const base = new Date(dateStr);
   const day = base.getDay();
-  const diff = base.getDate() - day + (day === 0 ? -6 : 1); // segunda
+  const diff = base.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(base.setDate(diff));
 
   return Array.from({ length: 7 }).map((_, i) => {
@@ -46,40 +51,24 @@ function getWeek(dateStr: string) {
 }
 
 function formatCPF(value: string) {
-  // Remove tudo que não for número
-  value = value.replace(/\D/g, "");
-  // Limita a 11 dígitos
-  value = value.substring(0, 11);
-  // Aplica a máscara
-  if (value.length > 9) {
-    value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})$/, "$1.$2.$3-$4");
-  } else if (value.length > 6) {
-    value = value.replace(/^(\d{3})(\d{3})(\d{0,3})$/, "$1.$2.$3");
-  } else if (value.length > 3) {
-    value = value.replace(/^(\d{3})(\d{0,3})$/, "$1.$2");
-  }
-  return value;
+  value = value.replace(/\D/g, "").substring(0, 11);
+  return value
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})$/, "$1.$2.$3-$4");
 }
 
 function isValidCPF(cpf: string) {
-  // Remove máscara
-  cpf = cpf.replace(/\D/g, "");
-  // Deve ter 11 números
-  return /^\d{11}$/.test(cpf);
+  return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
 }
 
-
 /* =====================
-   Mini Calendário
+   MINI CALENDÁRIO
 ===================== */
 function MiniCalendar({ selectedDate, markedDates, onSelect }: any) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const monthName = currentDate.toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric",
-  });
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -92,58 +81,22 @@ function MiniCalendar({ selectedDate, markedDates, onSelect }: any) {
     return { day, dateStr };
   });
 
-  function prevMonth() {
-    setCurrentDate(new Date(year, month - 1, 1));
-  }
-  function nextMonth() {
-    setCurrentDate(new Date(year, month + 1, 1));
-  }
-
-  
-
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <button
-          onClick={prevMonth}
-          className="px-3 py-1 rounded-lg bg-purple-800/40 text-purple-300"
-        >
-          ←
-        </button>
-        <span className="text-purple-300 font-semibold capitalize">
-          {monthName}
-        </span>
-        <button
-          onClick={nextMonth}
-          className="px-3 py-1 rounded-lg bg-purple-800/40 text-purple-300"
-        >
-          →
-        </button>
-      </div>
-
-      <div className="grid grid-cols-7 text-center text-xs text-gray-400">
-        {["D", "S", "T", "Q", "Q", "S", "S"].map((d) => (
-          <span key={d}>{d}</span>
-        ))}
-      </div>
-
       <div className="grid grid-cols-7 gap-2">
         {days.map((d, i) => (
           <div key={i} className="flex justify-center">
             {d && (
               <button
                 onClick={() => onSelect(d.dateStr)}
-                className={`w-9 h-9 rounded-full text-sm
+                className={`w-9 h-9 rounded-full text-xs
                   ${
-                    d.dateStr === selectedDate ? "bg-purple-600 text-white" : ""
-                  }
-                  ${
-                    markedDates.includes(d.dateStr) &&
-                    d.dateStr !== selectedDate
+                    d.dateStr === selectedDate
+                      ? "bg-purple-600 text-white"
+                      : markedDates.includes(d.dateStr)
                       ? "bg-purple-900 text-white"
-                      : ""
-                  }
-                `}
+                      : "text-gray-400"
+                  }`}
               >
                 {d.day}
               </button>
@@ -156,99 +109,57 @@ function MiniCalendar({ selectedDate, markedDates, onSelect }: any) {
 }
 
 /* =====================
-   Componente AppointmentCard
+   CARD DE CONSULTA
 ===================== */
-function AppointmentCard({ a, fetchAppointments, date }: any) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+function AppointmentCard({ a, refresh }: any) {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState(false);
 
-  async function handleDelete() {
+  async function remove() {
     await supabase.from("scheduling").delete().eq("id", a.id);
-    fetchAppointments(date);
-    setIsDeleteModalOpen(false);
+    refresh();
+    setConfirm(false);
   }
 
   return (
-    <div className="relative p-2 rounded-lg bg-black/60 border border-purple-600/30">
-      {/* Clique no agendamento abre modal de detalhes */}
-      <div className="cursor-pointer mt-2" onClick={() => setIsModalOpen(true)}>
-        <p className="text-white text-xs">{a.hour}</p>
-      </div>
+    <div className="relative p-2 bg-black/60 border border-purple-600/30 rounded-lg">
+      <p onClick={() => setOpen(true)} className="cursor-pointer text-xs text-white">
+        {a.hour}
+      </p>
 
-      {/* Modal de detalhes da consulta */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Detalhes da Consulta"
-      >
-        <div className="space-y-2 text-sm text-white">
-          <p>
-            <strong>Título:</strong> {a.title}
-          </p>
-          <p>
-            <strong>Cliente:</strong> {a.client}
-          </p>
-          <p>
-            <strong>CPF:</strong> {a.cpf || "***.***.***-**"}
-          </p>
-          <p>
-            <strong>Médico:</strong> {a.doctorName}
-          </p>
-          <p>
-            <strong>Data:</strong> {a.date}
-          </p>
-          <p>
-            <strong>Hora:</strong> {a.hour}
-          </p>
-        </div>
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="px-3 py-1 bg-purple-600 rounded hover:bg-purple-700 text-white"
-          >
-            Fechar
-          </button>
-        </div>
-      </Modal>
-
-      {/* Modal de cancelamento */}
       <button
-        onClick={() => setIsDeleteModalOpen(true)}
-        className="absolute top-1 right-1 text-red-500 text-xs font-bold hover:text-red-700"
-        title="Cancelar consulta"
+        onClick={() => setConfirm(true)}
+        className="absolute top-1 right-1 text-red-500 text-xs"
       >
         ×
       </button>
 
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirmar cancelamento"
-      >
-        <p>Tem certeza que deseja cancelar esta consulta?</p>
+      <Modal isOpen={open} onClose={() => setOpen(false)} title="Detalhes">
+        <div className="space-y-1 text-sm">
+          <p><b>Paciente:</b> {a.patient_name}</p>
+          <p><b>CPF:</b> {a.cpf}</p>
+          <p><b>Telefone:</b> {a.phone}</p>
+          <p><b>Estado:</b> {a.state}</p>
+          <p><b>Cidade:</b> {a.city}</p>
+          <p><b>Bairro:</b> {a.neighborhood}</p>
+          <p><b>Nº:</b> {a.house_number}</p>
+          <p><b>Médico:</b> {a.doctor_name}</p>
+        </div>
+      </Modal>
+
+      <Modal isOpen={confirm} onClose={() => setConfirm(false)} title="Confirmar">
+        <p>Cancelar consulta?</p>
         <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={() => setIsDeleteModalOpen(false)}
-            className="px-3 py-1 bg-gray-600 rounded hover:bg-gray-700 text-white"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-3 py-1 bg-red-600 rounded hover:bg-red-700 text-white"
-          >
-            Confirmar
-          </button>
+          <button onClick={() => setConfirm(false)}>Não</button>
+          <button onClick={remove} className="text-red-500">Sim</button>
         </div>
       </Modal>
     </div>
   );
 }
 
-
-
 /* =====================
-   Página Home
+   HOME ADMIN
 ===================== */
 export default function HomePage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -259,6 +170,11 @@ export default function HomePage() {
     title: "",
     client: "",
     cpf: "",
+    phone: "",
+    state: "",
+    city: "",
+    neighborhood: "",
+    houseNumber: "",
     doctorId: "",
     hour: "",
   });
@@ -267,280 +183,169 @@ export default function HomePage() {
     const { data } = await supabase
       .from("users")
       .select("id, name")
-      .eq("role", "medico")
-      .order("name");
+      .eq("role", "medico");
     setDoctors(data || []);
   }
-  
 
-  async function fetchAppointments(selectedDate: string) {
-    const week = getWeek(selectedDate);
+  async function fetchAppointments() {
+    const week = getWeek(date);
     const { data } = await supabase
       .from("scheduling")
       .select("*")
       .in("date", week)
       .order("date")
       .order("hour");
-    if (!data) return;
-    setAppointments(
-      data.map((a: any) => ({
-        id: a.id,
-        title: a.title,
-        client: a.patient_name,
-        doctorId: a.doctor_id,
-        doctorName: a.doctor_name,
-        hour: a.hour,
-        date: a.date,
-      }))
-    );
-  }
 
-  
+    setAppointments(data || []);
+  }
 
   async function addAppointment() {
-async function addAppointment() {
-  // Verifica campos vazios
-  if (!form.title || !form.client || !form.cpf || !form.doctorId || !form.hour) {
-    alert("Preencha todos os campos corretamente");
-    return;
-  }
-
-  // Verifica CPF válido
-  if (!isValidCPF(form.cpf)) {
-    alert("CPF inválido");
-    return;
-  }
-
-  const doctor = doctors.find((d) => d.id === form.doctorId);
-  if (!doctor) return;
-
-  const { error } = await supabase.from("scheduling").insert({
-    cpf: form.cpf,
-    patient_name: form.client,
-    title: form.title,
-    doctor_id: doctor.id,
-    doctor_name: doctor.name,
-    date,
-    hour: form.hour,
-  });
-
-  if (error) {
-    if (error.code === "23505")
-      alert("⚠️ Este horário já está ocupado para este médico.");
-    else {
-      alert("Erro ao salvar consulta");
-      console.error(error);
-    }
-    return;
-  }
-
-  setForm({ title: "", client: "", cpf: "", doctorId: "", hour: "" });
-  fetchAppointments(date);
-}
-
-
-    if (
-      !form.title ||
-      !form.client ||
-      !form.cpf ||
-      !form.doctorId ||
-      !form.hour
-    ) {
+    if (Object.values(form).some((v) => !v)) {
       alert("Preencha todos os campos");
       return;
     }
+
+    if (!isValidCPF(form.cpf)) {
+      alert("CPF inválido");
+      return;
+    }
+
     const doctor = doctors.find((d) => d.id === form.doctorId);
     if (!doctor) return;
 
-    const { error } = await supabase.from("scheduling").insert({
-      cpf: form.cpf,
-      patient_name: form.client,
+    await supabase.from("scheduling").insert({
       title: form.title,
+      patient_name: form.client,
+      cpf: form.cpf,
+      phone: form.phone,
+      state: form.state,
+      city: form.city,
+      neighborhood: form.neighborhood,
+      house_number: form.houseNumber,
       doctor_id: doctor.id,
       doctor_name: doctor.name,
       date,
       hour: form.hour,
     });
 
-    if (error) {
-      if (error.code === "23505")
-        alert("⚠️ Este horário já está ocupado para este médico.");
-      else {
-        alert("Erro ao salvar consulta");
-        console.error(error);
-      }
-      return;
-    }
+    setForm({
+      title: "",
+      client: "",
+      cpf: "",
+      phone: "",
+      state: "",
+      city: "",
+      neighborhood: "",
+      houseNumber: "",
+      doctorId: "",
+      hour: "",
+    });
 
-    setForm({ title: "", client: "", cpf: "", doctorId: "", hour: "" });
-    fetchAppointments(date);
+    fetchAppointments();
   }
 
   useEffect(() => {
     fetchDoctors();
   }, []);
+
   useEffect(() => {
-    fetchAppointments(date);
+    fetchAppointments();
   }, [date]);
 
   const markedDates = Array.from(new Set(appointments.map((a) => a.date)));
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black p-10">
+    <main className="min-h-screen bg-black p-8 text-white">
       <div className="grid grid-cols-2">
-      <h1 className="text-3xl font-bold text-purple-400 mb-8">
-        Agenda de Consultas
-      </h1>
-      <Link
-        href="/login"
-        className="justify-self-end inline-block rounded-xl  px-3 h-6 text-white font-semibold hover:bg-purple-700 transition shadow-lg shadow-purple-600/30"
-      >
-        Sair
-      </Link>
-</div>
-      <div className="grid lg:grid-cols-6 gap-6">
-        {/* Médicos */}
-        <div className="bg-black/70 border col-span-1 border-purple-700/40 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-purple-400 mb-4">
-            Médicos
-          </h2>
-          <ul className="space-y-2">
-            {doctors.map((doc) => (
-              <li
-                key={doc.id}
-                className="p-3 rounded-xl bg-black/60 border  border-purple-600/30 text-white"
-              >
-                dr(a) {doc.name}
-              </li>
-            ))}
-            {doctors.length === 0 && (
-              <p className="text-sm text-gray-400">Nenhum médico cadastrado.</p>
-            )}
-          </ul>
+        <div>
+        <h1 className="text-3xl text-purple-400 font-bold">Home ADMIN</h1>
         </div>
+        <div className="grid justify-end grid-cols-2 gap-4 pb-12">
+        <Link className="bg-purple-800 shadow-2xl rounded-xl p-2 shadow-purple-500 " href="/login">Sair</Link>
+        <Link className="bg-purple-800 shadow-2xl rounded-xl p-2 shadow-purple-500" href="/users">Usuários</Link>
+        </div>
+      </div>
 
-        {/* Nova Consulta */}
-        <div className="bg-black/70 border border-purple-700/40 col-span-3 rounded-2xl p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-purple-400">
-            Nova Consulta
-          </h2>
-
+      <div className="grid grid-cols-6 gap-6">
+        <div className="col-span-3 space-y-2">
           <MiniCalendar
             selectedDate={date}
             markedDates={markedDates}
             onSelect={setDate}
           />
 
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="Título da consulta"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="Nome do cliente"
-            value={form.client}
-            onChange={(e) => setForm({ ...form, client: e.target.value })}
-          />
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="CPF do cliente"
-            value={form.cpf}
-            onChange={(e) =>
-              setForm({ ...form, cpf: formatCPF(e.target.value) })
-            }
-          />
+          {Object.entries(form).map(
+            ([key, value]) =>
+              key !== "doctorId" &&
+              key !== "hour" && (
+                <input
+                  key={key}
+                  value={value}
+                  placeholder={key}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      [key]:
+                        key === "cpf"
+                          ? formatCPF(e.target.value)
+                          : e.target.value,
+                    })
+                  }
+                  className="w-full p-2 bg-black border border-purple-600/40 rounded"
+                />
+              )
+          )}
 
           <select
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            value={form.doctorId}
+            className="w-full p-2 bg-black border rounded"
             onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
           >
-            <option value="">Selecione o médico</option>
-            {doctors.map((doc) => (
-              <option key={doc.id} value={doc.id}>
-                {doc.name}
-              </option>
+            <option value="">Médico</option>
+            {doctors.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
 
           <select
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            value={form.hour}
+            className="w-full p-2 bg-black border rounded"
             onChange={(e) => setForm({ ...form, hour: e.target.value })}
           >
             <option value="">Horário</option>
             {hours.map((h) => (
-              <option key={h} value={h}>
-                {h}
-              </option>
+              <option key={h}>{h}</option>
             ))}
           </select>
 
           <button
             onClick={addAppointment}
-            className="w-full py-3 bg-purple-600 rounded-xl text-white font-semibold hover:bg-purple-700"
+            className="w-full bg-purple-600 p-2 rounded"
           >
-            Adicionar Consulta
+            Adicionar
           </button>
         </div>
 
-        {/* Agenda da semana */}
-        <div className="col-span-2 h-[850px] flex flex-col">
-          {" "}
-          {/* altura fixa da coluna */}
-          <div className="h-full bg-black/70 border  border-purple-700/40 rounded-2xl flex flex-col">
-            {/* =====================
-        Título fixo
-    ===================== */}
-            <div className="p-6 flex-shrink-0">
-              <h2 className="text-xl font-semibold text-purple-400">
-                Agenda da Semana
-              </h2>
-            </div>
-
-            {/* =====================
-        Calendário da semana + consultas
-        Altura fixa, rolagem se necessário
-    ===================== */}
-            <div className="flex-1 px-6 pb-6 overflow-y-auto   scrollbar-thin scrollbar-thumb-purple-700  scrollbar-track-black">
-              <div className="grid grid-cols-7 gap-3 text-xs ">
-                {getWeek(date).map((day) => (
-                  <div key={day} className="space-y-2">
-                    <p className="text-purple-300 font-semibold border border-purple-500 bg-purple-600/30 text-center">
-                      {new Date(day).toLocaleDateString("pt-BR", {
-                        weekday: "short",
-                        day: "2-digit",
-                      })}
-                    </p>
-
-                    {appointments
-                      .filter((a) => a.date === day)
-                      .map((a) => (
-                        <AppointmentCard
-                          key={a.id}
-                          a={a}
-                          fetchAppointments={fetchAppointments}
-                          date={date}
-                        />
-                      ))}
-
-                    {appointments.filter((a) => a.date === day).length ===
-                      0 && <p className="text-gray-500 text-center">—</p>}
-                  </div>
-                ))}
+        <div className="col-span-3 h-[800px] overflow-y-auto">
+          <div className="grid grid-cols-7 gap-2">
+            {getWeek(date).map((day) => (
+              <div key={day} className="space-y-1">
+                <p className="text-xs text-purple-400 text-center">{day}</p>
+                {appointments
+                  .filter((a) => a.date === day)
+                  .map((a) => (
+                    <AppointmentCard
+                      key={a.id}
+                      a={a}
+                      refresh={fetchAppointments}
+                    />
+                  ))}
               </div>
-            </div>
-
-            {/* =====================
-        Gráfico fixo embaixo
-    ===================== */}
-          </div>
-          <div className="pt-2  pb-6 flex-shrink-0">
-            <ChartAreaInteractive />
+            ))}
           </div>
         </div>
+      </div>
+
+      <div className="pt-4">
+        <ChartAreaInteractive />
       </div>
     </main>
   );
