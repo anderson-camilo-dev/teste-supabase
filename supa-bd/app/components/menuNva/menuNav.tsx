@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function MenuHamburguerNav() {
+export default function MenuHamburguer() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative justify-items-end">
+    <div className="relative  justify-items-end">
       {/* Ícone */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -32,21 +32,13 @@ export default function MenuHamburguerNav() {
             <li>
               <Link
                 href="/login"
-                className="block px-4 py-3 text-purple-500 font-semibold hover:text-purple-700 hover:bg-gray-100"
+                className="block px-4 py-3 text-purple-500 font-semibold hover:text-purple-700 "
                 onClick={() => setOpen(false)}
               >
-                login
+                Sair
               </Link>
             </li>
-            <li>
-              <Link
-                href="/singUp"
-                className="block px-4 py-3 text-purple-500 font-semibold hover:text-purple-700 hover:bg-gray-100"
-                onClick={() => setOpen(false)}
-              >
-                registrar-se
-              </Link>
-            </li>
+           
            
           </ul>
         </div>

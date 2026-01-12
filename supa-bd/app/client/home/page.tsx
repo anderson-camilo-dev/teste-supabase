@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Modal } from "@/app/components/Modal";
-import Link from "next/link";
+import HeaderNav from "@/app/components/HeaderAnav";
 
 /* =====================
    Tipagens
@@ -52,12 +51,19 @@ function todayStr() {
 /* =====================
    Mini Calendário
 ===================== */
-function MiniCalendar({ selectedDate, markedDates, onSelect }: any) {
+function MiniCalendar({
+  selectedDate,
+  markedDates,
+  onSelect,
+}: {
+  selectedDate: string;
+  markedDates: string[];
+  onSelect: (date: string) => void;
+}) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
   const monthName = currentDate.toLocaleDateString("pt-BR", {
     month: "long",
     year: "numeric",
@@ -76,50 +82,45 @@ function MiniCalendar({ selectedDate, markedDates, onSelect }: any) {
   });
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="space-y-2">
+      {/* Navegação do mês */}
+      <div className="flex items-center justify-between mb-1">
         <button
           onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
-          className="px-3 py-1 rounded-lg bg-purple-800/40 text-purple-300"
+          className="px-2 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
         >
           ←
         </button>
-
-        <span className="text-purple-300 font-semibold capitalize">
-          {monthName}
-        </span>
-
+        <span className="text-gray-700 font-semibold capitalize">{monthName}</span>
         <button
           onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
-          className="px-3 py-1 rounded-lg bg-purple-800/40 text-purple-300"
+          className="px-2 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
         >
           →
         </button>
       </div>
 
-      <div className="grid grid-cols-7 text-center text-xs text-gray-400">
+      {/* Dias da semana */}
+      <div className="grid grid-cols-7 text-center text-xs text-gray-500 font-medium mb-1">
         {["D", "S", "T", "Q", "Q", "S", "S"].map((d) => (
           <span key={d}>{d}</span>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      {/* Dias do mês */}
+      <div className="grid grid-cols-7 gap-1">
         {days.map((d, i) => (
           <div key={i} className="flex justify-center">
             {d && (
               <button
                 onClick={() => onSelect(d.dateStr)}
-                className={`w-9 h-9 rounded-full text-sm
+                className={`w-8 h-8 rounded-full text-sm font-medium transition
                   ${
                     d.dateStr === selectedDate
-                      ? "bg-purple-600 text-white"
-                      : ""
-                  }
-                  ${
-                    markedDates.includes(d.dateStr) &&
-                    d.dateStr !== selectedDate
-                      ? "bg-purple-900 text-white"
-                      : ""
+                      ? "bg-gray-800 text-white shadow"
+                      : markedDates.includes(d.dateStr)
+                      ? "bg-gray-400/50 text-gray-800"
+                      : "hover:bg-gray-200"
                   }
                 `}
               >
@@ -230,93 +231,94 @@ export default function HomePage() {
   const markedDates = Array.from(new Set(appointments.map((a) => a.date)));
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black p-10">
-      <div className="grid grid-cols-2 mb-6">
-        <h1 className="text-3xl font-bold text-purple-400">
+    <main className="min-h-screen bg-gray-50 text-gray-900">
+      <HeaderNav />
+
+      <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6">
           Agenda de Consultas
         </h1>
-        <Link href="/login" className="justify-self-end text-purple-300">
-          Sair
-        </Link>
-      </div>
 
-      <div className="grid lg:grid-cols-6 gap-6">
-        {/* Médicos */}
-        <div className="bg-black/70 border border-purple-700/40 rounded-2xl p-6">
-          <h2 className="text-xl text-purple-400 mb-4">Médicos</h2>
-          {doctors.map((doc) => (
-            <div
-              key={doc.id}
-              className="p-3 rounded-xl bg-black/60 border border-purple-600/30 text-white mb-2"
+        <div className="grid lg:grid-cols-4 gap-6">
+          {/* Médicos */}
+          <div className="bg-white col-span-1 border border-gray-200 rounded-2xl p-6 shadow-sm space-y-2">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Médicos disponíveis
+            </h2>
+            {doctors.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-3 rounded-lg bg-gray-100 border border-gray-200 text-gray-800"
+              >
+                Dr(a) {doc.name}
+              </div>
+            ))}
+          </div>
+
+          {/* Nova Consulta */}
+          <div className="col-span-3 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-semibold text-gray-800">Nova Consulta</h2>
+
+            <MiniCalendar
+              selectedDate={date}
+              markedDates={markedDates}
+              onSelect={setDate}
+            />
+
+            <input
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-400"
+              placeholder="Título da consulta"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+
+            <input
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-400"
+              placeholder="Nome do cliente"
+              value={form.client}
+              onChange={(e) => setForm({ ...form, client: e.target.value })}
+            />
+
+            <input
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-400"
+              placeholder="CPF"
+              value={form.cpf}
+              onChange={(e) =>
+                setForm({ ...form, cpf: formatCPF(e.target.value) })
+              }
+            />
+
+            <select
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-400"
+              value={form.doctorId}
+              onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
             >
-              Dr(a) {doc.name}
-            </div>
-          ))}
-        </div>
+              <option value="">Selecione o médico</option>
+              {doctors.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
 
-        {/* Nova Consulta */}
-        <div className="col-span-3 bg-black/70 border border-purple-700/40 rounded-2xl p-6 space-y-4">
-          <h2 className="text-xl text-purple-400">Nova Consulta</h2>
+            <select
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-400"
+              value={form.hour}
+              onChange={(e) => setForm({ ...form, hour: e.target.value })}
+            >
+              <option value="">Horário</option>
+              {hours.map((h) => (
+                <option key={h}>{h}</option>
+              ))}
+            </select>
 
-          <MiniCalendar
-            selectedDate={date}
-            markedDates={markedDates}
-            onSelect={setDate}
-          />
-
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="Título da consulta"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
-
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="Nome do cliente"
-            value={form.client}
-            onChange={(e) => setForm({ ...form, client: e.target.value })}
-          />
-
-          <input
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            placeholder="CPF"
-            value={form.cpf}
-            onChange={(e) =>
-              setForm({ ...form, cpf: formatCPF(e.target.value) })
-            }
-          />
-
-          <select
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            value={form.doctorId}
-            onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
-          >
-            <option value="">Selecione o médico</option>
-            {doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
-            value={form.hour}
-            onChange={(e) => setForm({ ...form, hour: e.target.value })}
-          >
-            <option value="">Horário</option>
-            {hours.map((h) => (
-              <option key={h}>{h}</option>
-            ))}
-          </select>
-
-          <button
-            onClick={addAppointment}
-            className="w-full py-3 bg-purple-600 rounded-xl text-white font-semibold hover:bg-purple-700"
-          >
-            Adicionar Consulta
-          </button>
+            <button
+              onClick={addAppointment}
+              className="w-full py-3 bg-indigo-600 rounded-lg text-white font-semibold hover:bg-indigo-700 transition"
+            >
+              Adicionar Consulta
+            </button>
+          </div>
         </div>
       </div>
     </main>
