@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ChartAreaInteractive } from "@/app/components/ui/shadcn-io/area-chart-01";
 import { Modal } from "@/app/components/Modal";
 import Link from "next/link";
 
@@ -538,7 +537,7 @@ async function addAppointment() {
     ===================== */}
           </div>
           <div className="pt-2  pb-6 flex-shrink-0">
-            <ChartAreaInteractive />
+            
           </div>
         </div>
       </div>

@@ -1,83 +1,98 @@
 import Link from "next/link";
 import Image from "next/image";
+import Header from "./components/Header";
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
+    <main className="min-h-screen bg-white text-white">
+      <Header />
 
       {/* ================= HERO ================= */}
-      <section className="max-w-7xl mx-auto px-8 py-24 grid lg:grid-cols-2 gap-16 items-center">
+      <div className="bg-purple-50">
+        <section
+          className="
+            max-w-7xl mx-auto
+            px-4 sm:px-6 lg:px-8
+            py-24 sm:py-32 lg:py-44
+            grid lg:grid-cols-2
+            gap-12 lg:gap-16
+            items-center
+          "
+        >
+          {/* Texto */}
+          <div className="bg-purple-50/50 p-6 sm:p-8 rounded-2xl mx-auto shadow-lg shadow-purple-600/20">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-purple-800 leading-tight mb-6">
+              Gestão inteligente
+              <br />
+              para consultórios modernos
+            </h1>
 
-        {/* Texto */}
-        <div>
-          <h1 className="text-5xl font-bold text-purple-400 leading-tight mb-6">
-            Gestão inteligente<br />para consultórios modernos
-          </h1>
+            <p className="text-gray-700 font-bold text-base sm:text-lg mb-8">
+              O{" "}
+              <span className="text-purple-700 font-semibold">TechFlow</span> é
+              um sistema completo para organização de consultas, médicos e
+              pacientes, trazendo mais controle, agilidade e profissionalismo
+              para o seu consultório.
+            </p>
 
-          <p className="text-gray-300 text-lg mb-8">
-            O <span className="text-purple-400 font-semibold">TechFlow</span> é
-            um sistema completo para organização de consultas, médicos e
-            pacientes, trazendo mais controle, agilidade e profissionalismo
-            para o seu consultório.
-          </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/login"
+                className="px-8 py-4 rounded-xl bg-purple-600 font-semibold hover:bg-purple-700 transition shadow-lg shadow-purple-600/30 text-center"
+              >
+                cadastrar-se agora
+              </Link>
 
-          <div className="flex gap-4">
-            <Link
-              href="/login"
-              className="px-8 py-4 rounded-xl bg-purple-600 font-semibold hover:bg-purple-700 transition shadow-lg shadow-purple-600/30"
-            >
-              Acessar sistema
-            </Link>
-
-            <Link
-              href="#como-funciona"
-              className="px-8 py-4 rounded-xl border border-purple-600/40 text-purple-300 hover:bg-purple-600/10 transition"
-            >
-              Saiba mais
-            </Link>
+              <Link
+                href="/login"
+                className="px-8 py-4 rounded-xl border border-purple-600/40 text-purple-600 hover:bg-purple-600/10 transition text-center"
+              >
+                entrar agora
+              </Link>
+            </div>
           </div>
-        </div>
 
-        {/* Calendário 3D */}
-        <div className="flex justify-center">
-          <Image
-            src="/pagina-principal/calendario.png" // ⬅️ coloque o caminho aqui
-            alt="Calendário 3D representando agendamentos"
-            width={360}
-            height={360}
-            className="object-contain"
-            priority
-          />
-        </div>
-      </section>
+          {/* Imagem */}
+          <div className="flex justify-center">
+            <Image
+              src="/pagina-principal/calendario.png"
+              alt="Calendário 3D representando agendamentos"
+              width={360}
+              height={360}
+              className="object-contain w-64 sm:w-80 lg:w-full"
+              priority
+            />
+          </div>
+        </section>
+      </div>
 
       {/* ================= COMO FUNCIONA ================= */}
       <section
         id="como-funciona"
-        className="max-w-7xl mx-auto px-8 py-24 space-y-24"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 space-y-20"
       >
-        <h2 className="text-4xl font-bold text-center text-purple-400">
-          Como o TechFlow ajuda seu consultório
+        <h2 className="text-3xl sm:text-4xl font-bold text-center text-purple-800">
+          Como a <span className="font-extrabold">CONSULTAS.IO</span> ajuda seu
+          consultório
         </h2>
 
         {/* Secretária */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="flex justify-center">
             <Image
-              src="/pagina-principal/secretaria.png" // ⬅️ caminho da ilustração
+              src="/pagina-principal/secretaria.png"
               alt="Secretária organizando consultas"
               width={420}
               height={420}
-              className="object-contain"
+              className="object-contain w-64 sm:w-80 lg:w-full"
             />
           </div>
 
           <div>
-            <h3 className="text-2xl font-semibold text-purple-300 mb-4">
+            <h3 className="text-xl sm:text-2xl font-semibold text-purple-700 mb-4">
               Organização para a secretária
             </h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 font-semibold text-base sm:text-lg lg:text-xl leading-relaxed">
               A secretária consegue visualizar toda a agenda da semana em um só
               lugar, criar novos agendamentos rapidamente e evitar conflitos de
               horários. Tudo de forma simples, clara e profissional.
@@ -86,13 +101,12 @@ export default function LandingPage() {
         </div>
 
         {/* Médica */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
-            <h3 className="text-2xl font-semibold text-purple-300 mb-4">
+            <h3 className="text-xl sm:text-2xl font-semibold text-purple-800 mb-4">
               Mais foco para os médicos
             </h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 font-semibold text-base sm:text-lg lg:text-xl leading-relaxed">
               O médico tem acesso rápido à sua agenda, sabendo exatamente quais
               consultas acontecerão no dia e na semana, reduzindo atrasos e
               melhorando o atendimento ao paciente.
@@ -101,24 +115,24 @@ export default function LandingPage() {
 
           <div className="flex justify-center">
             <Image
-              src="/pagina-principal/medica.png" // ⬅️ caminho da foto da médica
+              src="/pagina-principal/medica.png"
               alt="Profissional de saúde com estetoscópio"
               width={420}
               height={420}
-              className="object-contain"
+              className="object-contain w-64 sm:w-80 lg:w-full"
             />
           </div>
         </div>
       </section>
 
       {/* ================= BENEFÍCIOS ================= */}
-      <section className="bg-black/70 border-t border-purple-700/30">
-        <div className="max-w-7xl mx-auto px-8 py-24">
-          <h2 className="text-4xl font-bold text-center text-purple-400 mb-12">
+      <section className="bg-purple-800 border-t border-purple-700/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-purple-100 mb-12">
             Benefícios do sistema
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {[
               {
                 title: "Agenda inteligente",
@@ -135,12 +149,12 @@ export default function LandingPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-6 rounded-2xl bg-black/60 border border-purple-600/30"
+                className="p-8 sm:p-10 lg:p-12 rounded-2xl bg-black/60 border border-purple-600/30"
               >
-                <h4 className="text-xl font-semibold text-purple-300 mb-3">
+                <h4 className="text-2xl sm:text-3xl font-semibold text-purple-300 mb-3">
                   {item.title}
                 </h4>
-                <p className="text-gray-400">{item.text}</p>
+                <p className="text-gray-200">{item.text}</p>
               </div>
             ))}
           </div>
@@ -148,11 +162,11 @@ export default function LandingPage() {
       </section>
 
       {/* ================= CTA FINAL ================= */}
-      <section className="py-24 text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-6">
+      <section className="py-20 sm:py-24 text-center px-4">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-purple-800 mb-6">
           Leve seu consultório para o próximo nível
         </h2>
-        <p className="text-gray-400 mb-10">
+        <p className="text-gray-600 font-bold text-base sm:text-lg mb-10">
           Comece agora a usar o TechFlow e transforme a organização do seu
           consultório.
         </p>
