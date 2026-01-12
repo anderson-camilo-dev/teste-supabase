@@ -11,7 +11,7 @@ export default function SignUpPage() {
   const [role, setRole] = useState("");
   const [cpf, setCpf] = useState("");
 
-  // 🔹 ENDEREÇO
+  // Endereço
   const [rua, setRua] = useState("");
   const [numeroCasa, setNumeroCasa] = useState("");
   const [bairro, setBairro] = useState("");
@@ -21,64 +21,83 @@ export default function SignUpPage() {
   const [exists, setExists] = useState(false);
   const router = useRouter();
 
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setExists(false);
+ async function handleSignup(e: React.FormEvent) {
+  e.preventDefault();
+  setError("");
+  setExists(false);
 
-    if (!name || !email || !password || !role) {
-      setError("Preencha todos os campos.");
+  // Valida campos
+  if (!name || !email || !password || !role) {
+    setError("Preencha todos os campos.");
+    return;
+  }
+
+  if (role === "medico") {
+    if (!cpf || !rua || !numeroCasa || !bairro || !cidade) {
+      setError("Preencha todos os dados do médico.");
+      return;
+    }
+    if (cpf.replace(/\D/g, "").length !== 11) {
+      setError("CPF inválido.");
       return;
     }
 
-    if (role === "medico") {
-      if (!cpf || !rua || !numeroCasa || !bairro || !cidade) {
-        setError("Preencha todos os dados do médico.");
-        return;
-      }
-
-      const cpfNumbers = cpf.replace(/\D/g, "");
-      if (cpfNumbers.length !== 11) {
-        setError("CPF inválido.");
-        return;
-      }
-    }
-
-    const { data } = await supabase
+    // Checa CPF duplicado
+    const { data: existingCpf } = await supabase
       .from("users")
       .select("id")
-      .eq("email", email)
+      .eq("cpf", cpf.replace(/\D/g, ""))
       .single();
 
-    if (data) {
-      setExists(true);
+    if (existingCpf) {
+      setError("CPF já cadastrado.");
       return;
     }
+  }
 
-    const { error: insertError } = await supabase.from("users").insert({
+  // Checa email duplicado
+  const { data: existingEmail } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single();
+
+  if (existingEmail) {
+    setError("Email já cadastrado.");
+    return;
+  }
+
+  // Insere no banco
+  const { data: insertData, error: insertError } = await supabase
+    .from("users")
+    .insert({
       name,
       email,
-      password,
       role,
+      password, // salva a senha em texto simples
       cpf: role === "medico" ? cpf.replace(/\D/g, "") : null,
       rua: role === "medico" ? rua : null,
       numero_casa: role === "medico" ? numeroCasa : null,
       bairro: role === "medico" ? bairro : null,
       cidade: role === "medico" ? cidade : null,
-    });
+    })
+    .select();
 
-    if (insertError) {
-      setError("Erro ao cadastrar usuário.");
-      console.error(insertError);
-      return;
-    }
-
-    router.push("/login");
+  if (insertError) {
+    console.error("Erro ao inserir usuário:", insertError);
+    setError("Erro ao cadastrar usuário.");
+    return;
   }
+
+  console.log("Usuário cadastrado:", insertData);
+  router.push("/login");
+}
+
 
   function formatCpf(value: string) {
     const numbers = value.replace(/\D/g, "");
     let formatted = numbers;
+
     if (numbers.length > 3 && numbers.length <= 6)
       formatted = numbers.replace(/(\d{3})(\d+)/, "$1.$2");
     else if (numbers.length > 6 && numbers.length <= 9)
@@ -88,6 +107,7 @@ export default function SignUpPage() {
         /(\d{3})(\d{3})(\d{3})(\d+)/,
         "$1.$2.$3-$4"
       );
+
     return formatted;
   }
 
@@ -148,28 +168,24 @@ export default function SignUpPage() {
               placeholder="CPF"
               className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
             />
-
             <input
               value={rua}
               onChange={(e) => setRua(e.target.value)}
               placeholder="Rua"
               className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
             />
-
             <input
               value={numeroCasa}
               onChange={(e) => setNumeroCasa(e.target.value)}
               placeholder="Número da casa"
               className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
             />
-
             <input
               value={bairro}
               onChange={(e) => setBairro(e.target.value)}
               placeholder="Bairro"
               className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
             />
-
             <input
               value={cidade}
               onChange={(e) => setCidade(e.target.value)}
