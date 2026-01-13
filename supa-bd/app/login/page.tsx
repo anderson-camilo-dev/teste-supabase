@@ -9,11 +9,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     const { data } = await supabase
       .from("users")
@@ -24,6 +27,7 @@ export default function LoginPage() {
 
     if (!data) {
       setError("Email ou senha inválidos");
+      setLoading(false);
       return;
     }
 
@@ -31,7 +35,7 @@ export default function LoginPage() {
     if (data.role === "admin") {
       router.push("/users");
     } else {
-      router.push("/client/home"); // Usuário comum vai direto para a home
+      router.push("/client/home");
     }
   }
 
@@ -50,7 +54,8 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+          disabled={loading}
+          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white disabled:opacity-50"
         />
 
         <input
@@ -59,7 +64,8 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
-          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white"
+          disabled={loading}
+          className="w-full mb-4 px-4 py-3 rounded-xl bg-black/60 border border-purple-600/40 text-white disabled:opacity-50"
         />
 
         {error && <p className="text-red-400 mb-3">{error}</p>}
@@ -72,8 +78,20 @@ export default function LoginPage() {
           agora!
         </p>
 
-        <button className="w-full py-3 bg-purple-600 rounded-xl text-white">
-          Entrar
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            w-full py-3 rounded-xl text-white
+            bg-purple-600 hover:bg-purple-700
+            transition flex items-center justify-center gap-2
+            disabled:opacity-60 disabled:cursor-not-allowed
+          "
+        >
+          {loading && (
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          )}
+          {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
     </main>

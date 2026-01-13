@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { IconNav } from "../visual/NavIcon";
 
 export default function MenuHamburguer() {
   const [open, setOpen] = useState(false);
@@ -27,19 +28,10 @@ export default function MenuHamburguer() {
 
       {/* Caixa do menu */}
       {open && (
-        <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg border">
+        <div className="absolute right-0 mt-2 w-44  ">
           <ul className="flex flex-col text-sm text-gray-700">
-            <li>
-              <Link
-                href="/login"
-                className="block px-4 py-3 text-purple-500 font-semibold hover:text-purple-700 "
-                onClick={() => setOpen(false)}
-              >
-                Sair
-              </Link>
-            </li>
-           
-           
+            <li></li>
+            <IconNav />
           </ul>
         </div>
       )}

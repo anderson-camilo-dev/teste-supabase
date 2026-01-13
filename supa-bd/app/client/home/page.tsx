@@ -25,8 +25,9 @@ interface Appointment {
 /* =====================
    Utilidades
 ===================== */
-const hours = Array.from({ length: 11 }, (_, i) =>
-  `${String(i + 9).padStart(2, "0")}:00`
+const hours = Array.from(
+  { length: 11 },
+  (_, i) => `${String(i + 9).padStart(2, "0")}:00`
 );
 
 function formatCPF(value: string) {
@@ -35,8 +36,7 @@ function formatCPF(value: string) {
     return value.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})$/, "$1.$2.$3-$4");
   if (value.length > 6)
     return value.replace(/^(\d{3})(\d{3})(\d{0,3})$/, "$1.$2.$3");
-  if (value.length > 3)
-    return value.replace(/^(\d{3})(\d{0,3})$/, "$1.$2");
+  if (value.length > 3) return value.replace(/^(\d{3})(\d{0,3})$/, "$1.$2");
   return value;
 }
 
@@ -91,7 +91,9 @@ function MiniCalendar({
         >
           ←
         </button>
-        <span className="text-gray-700 font-semibold capitalize">{monthName}</span>
+        <span className="text-gray-700 font-semibold capitalize">
+          {monthName}
+        </span>
         <button
           onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
           className="px-2 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
@@ -132,6 +134,25 @@ function MiniCalendar({
       </div>
     </div>
   );
+}
+
+const [doctors, setDoctors] = useState<Doctor[]>([]);
+const [loadingDoctors, setLoadingDoctors] = useState(true);
+
+async function fetchDoctors() {
+  setLoadingDoctors(true);
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name")
+    .eq("role", "medico")
+    .order("name");
+
+  if (!error) {
+    setDoctors(data || []);
+  }
+
+  setLoadingDoctors(false);
 }
 
 /* =====================
@@ -245,19 +266,36 @@ export default function HomePage() {
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Médicos disponíveis
             </h2>
-            {doctors.map((doc) => (
-              <div
-                key={doc.id}
-                className="p-3 rounded-lg bg-gray-100 border border-gray-200 text-gray-800"
-              >
-                Dr(a) {doc.name}
-              </div>
-            ))}
+
+            {/* Loading */}
+            {loadingDoctors && (
+              <p className="text-sm text-gray-500 animate-pulse">
+                Carregando médicos...
+              </p>
+            )}
+
+            {/* Lista */}
+            {!loadingDoctors &&
+              doctors.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="p-3 rounded-lg bg-gray-100 border border-gray-200 text-gray-800"
+                >
+                  Dr(a) {doc.name}
+                </div>
+              ))}
+
+            {/* Nenhum médico */}
+            {!loadingDoctors && doctors.length === 0 && (
+              <p className="text-sm text-gray-500">Nenhum médico cadastrado.</p>
+            )}
           </div>
 
           {/* Nova Consulta */}
           <div className="col-span-3 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-gray-800">Nova Consulta</h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+              Nova Consulta
+            </h2>
 
             <MiniCalendar
               selectedDate={date}
@@ -314,7 +352,7 @@ export default function HomePage() {
 
             <button
               onClick={addAppointment}
-              className="w-full py-3 bg-indigo-600 rounded-lg text-white font-semibold hover:bg-indigo-700 transition"
+              className="w-full py-3 bg-purple-800 rounded-lg text-white font-semibold hover:bg-purple-700 transition"
             >
               Adicionar Consulta
             </button>
