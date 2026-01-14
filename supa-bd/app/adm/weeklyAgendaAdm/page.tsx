@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import HeaderNav from "@/app/components/Header";
+import HeaderNavAdm from "@/app/components/HeaderAdm";
 
 /* =======================
    Tipagem
@@ -92,90 +92,91 @@ export default function AgendaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white  ">
-        <HeaderNav />
+    <main className="min-h-screen bg-white  sm:px-6 lg:px-10 ">
+      <HeaderNavAdm />
+<div className="p-6 px-4">
       {/* Header */}
-      <div className="flex items-center pt-10 justify-between mb-6">
-        <h1 className="text-4xl font-bold text-gray-800">
+      <div className="flex flex-col sm:flex-row  items-start  sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800">
           Agenda Semanal
         </h1>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={prevWeek}
-            className="px-4 py-2 rounded-lg bg-white border border-slate-300 ext-white-700 hover:bg-purple-600"
+            className="px-3 sm:px-4 py-2 rounded-lg bg-white border border-slate-300 text-gray-700 hover:bg-purple-600 hover:text-white transition"
           >
             ← Semana anterior
           </button>
           <button
             onClick={nextWeek}
-            className="px-4 py-2 rounded-lg bg-white border border-slate-300 ext-white-700 hover:bg-purple-600"
+            className="px-3 sm:px-4 py-2 rounded-lg bg-white border border-slate-300 text-gray-700 hover:bg-purple-600 hover:text-white transition"
           >
             Próxima semana →
           </button>
         </div>
       </div>
 
-      {/* Cabeçalho */}
-      <div className="grid grid-cols-7 gap-2 mb-3">
-        <div className="bg-purple-600 ext-white-700 font-semibold rounded-lg py-2 text-center">
-          Hora
+      {/* Cabeçalho - tabela */}
+      <div className="overflow-x-auto">
+        <div className="min-w-[600px] grid grid-cols-7 gap-2 mb-3">
+          <div className="bg-purple-600 text-white font-semibold rounded-lg py-2 text-center">
+            Hora
+          </div>
+
+          {week.map((day) => (
+            <div
+              key={day}
+              className="bg-purple-600 text-white font-semibold rounded-lg py-2 text-center"
+            >
+              {new Date(day).toLocaleDateString("pt-BR", {
+                weekday: "short",
+                day: "2-digit",
+              })}
+            </div>
+          ))}
         </div>
 
-        {week.map((day) => (
-          <div
-            key={day}
-            className="bg-purple-600 text-white font-semibold rounded-lg py-2 text-center"
-          >
-            {new Date(day).toLocaleDateString("pt-BR", {
-              weekday: "short",
-              day: "2-digit",
-            })}
-          </div>
-        ))}
-      </div>
+        {/* Grid de horas */}
+        <div className="min-w-[600px] grid grid-cols-7 gap-2">
+          {hours.map((hour) => (
+            <div key={hour} className="contents">
+              {/* Hora */}
+              <div className="flex items-center justify-center bg-purple-600 text-white font-semibold rounded-lg py-2">
+                {hour}
+              </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-7  text-white gap-2">
-        {hours.map((hour) => (
-          <div key={hour} className="contents">
-            {/* Hora */}
-            <div className="flex items-center justify-center bg-purple-600 text-white font-semibold rounded-lg">
-              {hour}
+              {/* Dias */}
+              {week.map((day) => {
+                const apps = getAppointments(day, hour);
+
+                return (
+                  <button
+                    key={day + hour}
+                    onClick={() => apps.length && setSelected(apps)}
+                    className={`h-12 rounded-lg border text-sm font-medium transition flex items-center justify-center
+                      ${
+                        apps.length
+                          ? "bg-purple-600 text-white border-purple-700"
+                          : "bg-white text-gray-700 border-slate-300 hover:bg-purple-50"
+                      }
+                    `}
+                  >
+                    {apps.length === 1 && apps[0].patient_name}
+                    {apps.length > 1 && `${apps.length} consultas`}
+                  </button>
+                );
+              })}
             </div>
-
-            {/* Dias */}
-            {week.map((day) => {
-              const apps = getAppointments(day, hour);
-
-              return (
-                <button
-                  key={day + hour}
-                  onClick={() => apps.length && setSelected(apps)}
-                  className={`
-                    h-12 rounded-lg border text-sm font-medium transition
-                    flex items-center justify-center
-                    ${
-                      apps.length
-                        ? "bg-purple-600 text-white border-purple-700"
-                        : "bg-white ext-white-700 border-slate-300 hover:bg-purple-50"
-                    }
-                  `}
-                >
-                  {apps.length === 1 && apps[0].patient_name}
-                  {apps.length > 1 && `${apps.length} consultas`}
-                </button>
-              );
-            })}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Modal */}
       {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-96 space-y-3">
-            <h2 className="text-lg font-semibold ext-white-800">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md space-y-3">
+            <h2 className="text-lg font-semibold text-gray-800">
               Consultas
             </h2>
 
@@ -184,10 +185,8 @@ export default function AgendaPage() {
                 key={a.id}
                 className="p-3 rounded-lg bg-slate-50 border border-purple-600"
               >
-                <p className="font-semibold ext-white-800">
-                  {a.patient_name}
-                </p>
-                <p className="text-sm ext-white-600">
+                <p className="font-semibold text-gray-800">{a.patient_name}</p>
+                <p className="text-sm text-gray-600">
                   {a.title} • {a.hour.slice(0, 5)} • {a.doctor_name}
                 </p>
               </div>
@@ -195,13 +194,14 @@ export default function AgendaPage() {
 
             <button
               onClick={() => setSelected(null)}
-              className="mt-4 w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="mt-4 w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
             >
               Fechar
             </button>
           </div>
         </div>
       )}
+      </div>
     </main>
   );
 }

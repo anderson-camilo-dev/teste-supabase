@@ -41,7 +41,7 @@ export default function LoginPage() {
     } else if (data.role === "medico") {
       router.push("/doctor/home");
     } else if (data.role === "admin") {
-      router.push("/users");
+      router.push("/adm/users");
     } else {
       router.push("/atend/home");
     }

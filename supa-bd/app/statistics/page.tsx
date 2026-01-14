@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import HeaderNav from "../components/HeaderAtend";
+import HeaderNav from "@/app/components/HeaderAtend";
 import { supabase } from "@/lib/supabase";
 
 import {

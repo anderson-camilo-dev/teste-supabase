@@ -2,7 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import HeaderNav from "../components/HeaderAtend";
+import HeaderNavAdm from "../../components/HeaderAdm";
 /* =====================
    TIPOS
 ===================== */
@@ -105,10 +105,7 @@ export default function UsersPage() {
   async function saveEdit() {
     if (!selectedUser) return;
 
-    await supabase
-      .from("users")
-      .update(form)
-      .eq("id", selectedUser.id);
+    await supabase.from("users").update(form).eq("id", selectedUser.id);
 
     setEditing(false);
     setSelectedUser(null);
@@ -138,13 +135,12 @@ export default function UsersPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br text-white from-black via-purple-950 to-black ">
-      <HeaderNav / >
-      
+      <HeaderNavAdm />
+
       <div className="grid grid-cols-2 pt-10 max-w-7xl mx-auto px-4 mb-8">
-      <h1 className="text-3xl font-bold text-purple-400 mb-8">
-        Usuários cadastrados
-      </h1>
-     
+        <h1 className="text-3xl font-bold text-purple-400 mb-8">
+          Usuários cadastrados
+        </h1>
       </div>
 
       {/* LISTA */}
@@ -183,13 +179,27 @@ export default function UsersPage() {
 
             {!editing ? (
               <>
-                <p><b>Nome:</b> {selectedUser.name}</p>
-                <p><b>Email:</b> {selectedUser.email}</p>
-                <p><b>CPF:</b> {selectedUser.cpf || "-"}</p>
-                <p><b>Rua:</b> {selectedUser.rua || "-"}</p>
-                <p><b>Nº:</b> {selectedUser.numero_casa || "-"}</p>
-                <p><b>Bairro:</b> {selectedUser.bairro || "-"}</p>
-                <p><b>Cidade:</b> {selectedUser.cidade || "-"}</p>
+                <p>
+                  <b>Nome:</b> {selectedUser.name}
+                </p>
+                <p>
+                  <b>Email:</b> {selectedUser.email}
+                </p>
+                <p>
+                  <b>CPF:</b> {selectedUser.cpf || "-"}
+                </p>
+                <p>
+                  <b>Rua:</b> {selectedUser.rua || "-"}
+                </p>
+                <p>
+                  <b>Nº:</b> {selectedUser.numero_casa || "-"}
+                </p>
+                <p>
+                  <b>Bairro:</b> {selectedUser.bairro || "-"}
+                </p>
+                <p>
+                  <b>Cidade:</b> {selectedUser.cidade || "-"}
+                </p>
 
                 <h3 className="mt-6 mb-2 text-purple-300 font-semibold">
                   Agendamentos do mês
@@ -253,16 +263,44 @@ export default function UsersPage() {
                   <option value="admin">Administrador</option>
                 </select>
 
-                <input placeholder="Rua" value={form.rua} onChange={e=>setForm({...form,rua:e.target.value})} className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"/>
-                <input placeholder="Número" value={form.numero_casa} onChange={e=>setForm({...form,numero_casa:e.target.value})} className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"/>
-                <input placeholder="Bairro" value={form.bairro} onChange={e=>setForm({...form,bairro:e.target.value})} className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"/>
-                <input placeholder="Cidade" value={form.cidade} onChange={e=>setForm({...form,cidade:e.target.value})} className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"/>
+                <input
+                  placeholder="Rua"
+                  value={form.rua}
+                  onChange={(e) => setForm({ ...form, rua: e.target.value })}
+                  className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"
+                />
+                <input
+                  placeholder="Número"
+                  value={form.numero_casa}
+                  onChange={(e) =>
+                    setForm({ ...form, numero_casa: e.target.value })
+                  }
+                  className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"
+                />
+                <input
+                  placeholder="Bairro"
+                  value={form.bairro}
+                  onChange={(e) => setForm({ ...form, bairro: e.target.value })}
+                  className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"
+                />
+                <input
+                  placeholder="Cidade"
+                  value={form.cidade}
+                  onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                  className="w-full mb-2 px-3 py-2 bg-black border border-purple-600/40 rounded"
+                />
 
                 <div className="flex gap-2 mt-4">
-                  <button onClick={saveEdit} className="flex-1 py-2 bg-purple-600 rounded-lg text-white">
+                  <button
+                    onClick={saveEdit}
+                    className="flex-1 py-2 bg-purple-600 rounded-lg text-white"
+                  >
                     Salvar
                   </button>
-                  <button onClick={()=>setEditing(false)} className="flex-1 py-2 border border-purple-600/40 rounded-lg text-purple-300">
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="flex-1 py-2 border border-purple-600/40 rounded-lg text-purple-300"
+                  >
                     Cancelar
                   </button>
                 </div>
