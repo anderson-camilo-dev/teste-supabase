@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import HeaderNav from "../components/HeaderAnav";
+import HeaderNav from "../components/HeaderAtend";
 
 /* =======================
    Tipagem
@@ -95,9 +95,11 @@ export default function AgendaPage() {
   return (
     <main className="min-h-screen bg-white/95   text-purple-900">
       {/* Header */}
-        <HeaderNav />
+      <HeaderNav />
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold py-6 text-3xl text-purple-800">Agenda Semanal</h1>
+        <h1 className="text-2xl font-bold py-6 text-3xl text-purple-800">
+          Agenda Semanal
+        </h1>
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2">
             <button

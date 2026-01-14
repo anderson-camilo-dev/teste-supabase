@@ -63,12 +63,12 @@ export default function CardVisual() {
               para o seu consultório.
             </CardItem>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col-2 sm:flex-row gap-4">
               <CardItem translateZ={20}>
                 <Link
                   href="/singUp"
                   className="
-                    block px-8 py-4 rounded-xl
+                    block px-4 py-2 rounded-xl
                     bg-purple-600 font-semibold
                     hover:bg-purple-700 transition
                     shadow-lg shadow-purple-600/30
@@ -83,7 +83,7 @@ export default function CardVisual() {
                 <Link
                   href="/login"
                   className="
-                    block px-8 py-4 rounded-xl
+                    block px-4 py-2 rounded-xl
                     border border-purple-600/40
                     text-purple-600
                     hover:bg-purple-600/10 transition

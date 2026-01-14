@@ -1,5 +1,5 @@
 import React from "react";
-import { FloatingDock } from "../ui/floating-dock";
+import { FloatingDockClient } from "../ui/floating-dock-client";
 import {
   IconBrandGithub,
   IconBrandX,
@@ -9,7 +9,7 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 
-export function IconNav() {
+export function IconNavClint() {
   const links = [
     {
       title: "Sair",
@@ -41,11 +41,11 @@ export function IconNav() {
     },
 
     {
-      title: "Agenda semanal",
+      title: "agendar Consulta",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-6 w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -58,32 +58,12 @@ export function IconNav() {
           />
         </svg>
       ),
-      href: "/weeklyAgenda",
-    },
-    {
-      title: "gerenciamento",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-      ),
-      href: "/statistics",
+      href: "/client/agendar",
     },
   ];
   return (
     <div className="flex items-center  justify-center  ">
-      <FloatingDock
+      <FloatingDockClient
         // only for demo, remove for production
         items={links}
       />

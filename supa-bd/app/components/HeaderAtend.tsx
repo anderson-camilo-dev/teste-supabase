@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import MenuHamburguer from "./menu/menu";
 import MenuHamburguerNav from "./menuNva/menuNav";
-import { IconNav } from "./visual/NavIcon";
+
 
 export default function HeaderNav() {
   return (

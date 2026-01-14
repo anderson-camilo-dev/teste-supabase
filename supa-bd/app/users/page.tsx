@@ -2,6 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import HeaderNav from "../components/HeaderAtend";
 /* =====================
    TIPOS
 ===================== */
@@ -136,12 +137,14 @@ export default function UsersPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black p-10">
-      <div className="grid grid-cols-2">
+    <main className="min-h-screen bg-gradient-to-br text-white from-black via-purple-950 to-black ">
+      <HeaderNav / >
+      
+      <div className="grid grid-cols-2 pt-10 max-w-7xl mx-auto px-4 mb-8">
       <h1 className="text-3xl font-bold text-purple-400 mb-8">
         Usuários cadastrados
       </h1>
-      <Link href="/adm/home">ir para pagina de consulta</Link>
+     
       </div>
 
       {/* LISTA */}

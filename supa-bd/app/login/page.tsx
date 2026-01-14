@@ -18,24 +18,32 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("email", email)
       .eq("password", password)
       .single();
 
-    if (!data) {
+    if (error || !data) {
       setError("Email ou senha inválidos");
       setLoading(false);
       return;
     }
 
-    // Redireciona dependendo do papel
-    if (data.role === "admin") {
+    // 🔐 sessão manual
+    localStorage.setItem("user_id", data.id);
+    localStorage.setItem("user_role", data.role);
+
+    // 🔁 redirecionamento por role
+    if (data.role === "user") {
+      router.push("/client/home");
+    } else if (data.role === "medico") {
+      router.push("/doctor/home");
+    } else if (data.role === "admin") {
       router.push("/users");
     } else {
-      router.push("/client/home");
+      router.push("/atend/home");
     }
   }
 
@@ -81,12 +89,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="
-            w-full py-3 rounded-xl text-white
-            bg-purple-600 hover:bg-purple-700
-            transition flex items-center justify-center gap-2
-            disabled:opacity-60 disabled:cursor-not-allowed
-          "
+          className="w-full py-3 rounded-xl text-white bg-purple-600 hover:bg-purple-700 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading && (
             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

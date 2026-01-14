@@ -10,7 +10,7 @@ interface DockItem {
   href: string;
 }
 
-export const FloatingDock = ({ items, className }: { items: DockItem[]; className?: string }) => {
+export const FloatingDockClient = ({ items, className }: { items: DockItem[]; className?: string }) => {
   let mouseX = useMotionValue(Infinity);
 
   return (
@@ -20,7 +20,7 @@ export const FloatingDock = ({ items, className }: { items: DockItem[]; classNam
       className={cn(
         "w-full grid gap-2 p-2 rounded-xl bg-gray-50 shadow-md dark:bg-neutral-900",
         // Responsivo: 2 colunas em mobile, 3 em tablet, 4 em desktop
-        "grid-cols-4 sm:grid-cols-3 md:grid-cols-4",
+        "grid-cols-3 sm:grid-cols-3 md:grid-cols-4",
         className
       )}
     >
