@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import HeaderNav from "@/app/components/Header";
+import HeaderAtend from "@/app/components/HeaderAtend";
 
 /* =======================
    Tipagem
@@ -93,7 +93,7 @@ export default function AgendaPage() {
 
   return (
     <main className="min-h-screen bg-white  ">
-        <HeaderNav />
+        <HeaderAtend />
       {/* Header */}
       <div className="flex items-center pt-10 justify-between mb-6">
         <h1 className="text-4xl font-bold text-gray-800">

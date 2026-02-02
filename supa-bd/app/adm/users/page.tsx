@@ -134,7 +134,7 @@ export default function UsersPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br text-white from-black via-purple-950 to-black ">
+    <main className="min-h-screen text-white bg-gradient-to-br from-black via-black/80 to-black ">
       <HeaderNavAdm />
 
       <div className="grid grid-cols-2 pt-10 max-w-7xl mx-auto px-4 mb-8">

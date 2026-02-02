@@ -30,19 +30,19 @@ export default function ClientSchedulingPage() {
 
   /* =====================
      Buscar consultas pelo CPF do usuário logado
-  ===================== */
+  ====================== */
   useEffect(() => {
     async function fetchSchedulings() {
-      // 1️⃣ Sessão manual
       const userId = localStorage.getItem("user_id");
       const role = localStorage.getItem("user_role");
 
-      if (!userId || role !== "user") {
+      // 🔹 Redireciona somente se estiver em rota client
+      if (!userId || (role !== "user" && window.location.pathname.startsWith("/client"))) {
         router.push("/login");
         return;
       }
 
-      // 2️⃣ Buscar CPF do usuário
+      // 🔹 Buscar CPF do usuário
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("cpf")
@@ -54,7 +54,7 @@ export default function ClientSchedulingPage() {
         return;
       }
 
-      // 3️⃣ Buscar consultas pelo CPF
+      // 🔹 Buscar consultas pelo CPF
       const { data, error } = await supabase
         .from("scheduling")
         .select("*")
@@ -75,7 +75,7 @@ export default function ClientSchedulingPage() {
 
   /* =====================
      Avaliação
-  ===================== */
+  ====================== */
   async function handleRating(id: string, value: number) {
     const { error } = await supabase
       .from("scheduling")
@@ -93,8 +93,8 @@ export default function ClientSchedulingPage() {
   }
 
   /* =====================
-     Render (INTACTO)
-  ===================== */
+     Render
+  ====================== */
   return (
     <main className="min-h-screen bg-gray-50">
       <HeaderNavClient />
@@ -143,7 +143,7 @@ export default function ClientSchedulingPage() {
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
-                      className="bg-gray-500px-3 rounded"
+                      className="bg-gray-500 px-3 rounded"
                     >
                       Cancelar
                     </button>

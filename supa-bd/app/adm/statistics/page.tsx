@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import HeaderNav from "@/app/components/HeaderAtend";
+import HeaderNavAdm from "@/app/components/HeaderAdm";
 
 import {
   AreaChart,
@@ -113,8 +113,8 @@ export default function AdminConsultasPage() {
      RENDER
   ===================== */
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
-      <HeaderNav />
+    <main className="min-h-screen bg-gradient-to-br from-black via-black/80 to-black text-white">
+      <HeaderNavAdm />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
         {/* HEADER */}

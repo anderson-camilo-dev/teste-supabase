@@ -5,7 +5,7 @@ import MenuHamburguerNavAdm from "./menuNva/menuNavAdm/MenuNavAdm";
 
 export default function HeaderNavAdm() {
   return (
-    <header className="bg-purple-600 shadow">
+    <header className="bg-gradient-to-br from-purple-900 via-white/10 to-purple-900 shadow">
       <div className=" mx-auto px-4 py-6 sm:px-6 grid grid-cols-3 lg:px-8">
         <div>
           <Link href="/">

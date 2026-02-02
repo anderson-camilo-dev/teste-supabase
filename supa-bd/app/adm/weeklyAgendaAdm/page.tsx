@@ -92,7 +92,7 @@ export default function AgendaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white  sm:px-6 lg:px-10 ">
+    <main className="min-h-screen bg-gradient-to-br from-black via-black/80 to-black   ">
       <HeaderNavAdm />
 <div className="p-6 px-4">
       {/* Header */}
@@ -173,34 +173,64 @@ export default function AgendaPage() {
       </div>
 
       {/* Modal */}
-      {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md space-y-3">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Consultas
-            </h2>
+     {/* Modal */}
+{selected && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-xl p-6 w-full max-w-md space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800">Consultas</h2>
 
-            {selected.map((a) => (
-              <div
-                key={a.id}
-                className="p-3 rounded-lg bg-slate-50 border border-purple-600"
-              >
-                <p className="font-semibold text-gray-800">{a.patient_name}</p>
-                <p className="text-sm text-gray-600">
-                  {a.title} • {a.hour.slice(0, 5)} • {a.doctor_name}
-                </p>
-              </div>
-            ))}
-
-            <button
-              onClick={() => setSelected(null)}
-              className="mt-4 w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-            >
-              Fechar
-            </button>
+      {selected.map((a) => (
+        <div
+          key={a.id}
+          className="p-3 rounded-lg bg-slate-50 border border-purple-600 flex justify-between items-center"
+        >
+          <div>
+            <p className="font-semibold text-gray-800">{a.patient_name}</p>
+            <p className="text-sm text-gray-600">
+              {a.title} • {a.hour.slice(0, 5)} • {a.doctor_name}
+            </p>
           </div>
+
+          {/* Botão de apagar */}
+          <button
+            onClick={async () => {
+              if (confirm("Deseja realmente apagar esta consulta?")) {
+                const { error } = await supabase
+                  .from("scheduling")
+                  .delete()
+                  .eq("id", a.id);
+
+                if (error) {
+                  alert("Erro ao apagar: " + error.message);
+                  return;
+                }
+
+                // Atualiza o estado removendo a consulta deletada
+                setData((prev) => prev.filter((item) => item.id !== a.id));
+
+                // Fecha o modal se não houver mais consultas
+                setSelected((prev) =>
+                  prev ? prev.filter((item) => item.id !== a.id) : null
+                );
+              }
+            }}
+            className="ml-3 py-1 px-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+          >
+            Apagar
+          </button>
         </div>
-      )}
+      ))}
+
+      <button
+        onClick={() => setSelected(null)}
+        className="mt-4 w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+      >
+        Fechar
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
     </main>
   );
